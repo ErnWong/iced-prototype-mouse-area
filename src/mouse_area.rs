@@ -1,9 +1,6 @@
-use std::{
-    cell::{Cell, Ref, RefCell, RefMut},
-    ops::Deref,
-};
+use std::cell::RefCell;
 
-use iced::{mouse::Button, touch, Element, Length, Point, Rectangle, Size};
+use iced::{mouse::Button, touch, Element, Length};
 use iced_native::{
     layout, mouse,
     widget::{tree, Tree},
@@ -20,12 +17,10 @@ pub struct MouseState {
 pub struct MouseArea<'a, Message, Renderer> {
     view: Box<dyn Fn(MouseState) -> Element<'a, Message, Renderer> + 'a>,
     content: RefCell<Content<'a, Message, Renderer>>,
-    //content: RefCell<Option<Element<'a, Message, Renderer>>>,
 }
 
 impl<'a, Message, Renderer> MouseArea<'a, Message, Renderer> {
     pub fn new(view: impl Fn(MouseState) -> Element<'a, Message, Renderer> + 'a) -> Self {
-        //println!("MouseArea::new");
         Self {
             view: Box::new(view),
             content: RefCell::new(Content {
@@ -70,30 +65,14 @@ impl<'a, Message, Renderer> Content<'a, Message, Renderer> {
         view: impl Fn(MouseState) -> Element<'a, Message, Renderer>,
     ) -> &mut Element<'a, Message, Renderer> {
         if self.element.is_none() {
-            //println!("resolve: Warning: mouse area content approximated as we don't have mouse state yet");
             self.element = Some(view(Default::default()));
-        } else {
-            //println!("resolve: Using existing content");
         }
         self.element.as_mut().unwrap()
-        //RefMut::map(self.content.borrow_mut(), |optional_content| {
-        //    optional_content.as_mut().unwrap()
-        //})
     }
 }
 
-//impl<'a, Message, Renderer> MouseArea<'a, Message, Renderer> {
-//    fn resolve(&self, tree: &Tree) -> Element<'a, Message, Renderer> {
-//        // TODO: Cache this so it can be reused in the current frame.
-//        let state = tree.state.downcast_ref::<State>();
-//        (self.view)(state.mouse_state.get())
-//    }
-//}
-
 struct State {
     mouse_state: MouseState,
-    //content_bounds: Cell<Rectangle>,
-    //content_tree: RefCell<Tree>,
 }
 
 impl<'a, Message, Renderer> Widget<Message, Renderer> for MouseArea<'a, Message, Renderer>
@@ -114,9 +93,6 @@ where
         cursor_position: iced::Point,
         viewport: &iced::Rectangle,
     ) {
-        //let content_layout = layout.children().next().unwrap();
-        let content_layout = layout; // TODO
-
         self.content
             .borrow_mut() // TODO consider making this self.resolve()
             .resolve(&self.view)
@@ -126,7 +102,7 @@ where
                 renderer,
                 theme,
                 style,
-                content_layout,
+                layout,
                 cursor_position,
                 viewport,
             );
@@ -134,8 +110,6 @@ where
 
     fn diff(&self, tree: &mut Tree) {
         let state = tree.state.downcast_ref::<State>();
-        // Construct the new
-        //println!("diff: mouse state: {}", state.mouse_state.get().hovered);
         self.content
             .borrow_mut()
             .update(state.mouse_state, &self.view);
@@ -174,10 +148,6 @@ where
             .resolve(&self.view)
             .as_widget()
             .layout(renderer, limits)
-        //layout::Node::with_children(
-        //    limits.max(),
-        //    vec![self.resolve().as_widget().layout(renderer, limits)],
-        //)
     }
 
     fn operate(
@@ -199,11 +169,6 @@ where
     //}
 
     fn children(&self) -> Vec<Tree> {
-        // TODO: Hmmmmmmmmmm.... is this borrowing for too long??
-        //vec![Tree::new(self.content.borrow().as_ref().expect(
-        //    "widget::diff should be called before asking for children",
-        //))]
-        // TODO: above currently hits assert.
         vec![Tree::new(
             self.content.borrow_mut().resolve(&self.view).as_widget(),
         )]
@@ -219,13 +184,8 @@ where
         clipboard: &mut dyn iced_native::Clipboard,
         shell: &mut iced_native::Shell<'_, Message>,
     ) -> iced::event::Status {
-        //todo!() // Should cache resolved content elmeent and forward event
-        //iced::event::Status::Ignored
-        //let content_layout = layout.children().next().unwrap();
-        let content_layout = layout; // TODO
-
         let state = tree.state.downcast_mut::<State>();
-        state.mouse_state.hovered = content_layout.bounds().contains(cursor_position);
+        state.mouse_state.hovered = layout.bounds().contains(cursor_position);
         match event {
             iced::Event::Mouse(mouse::Event::ButtonPressed(Button::Left))
             | iced::Event::Touch(touch::Event::FingerPressed { .. }) => {
@@ -255,17 +215,12 @@ where
             .on_event(
                 &mut tree.children[0],
                 event,
-                content_layout,
+                layout,
                 cursor_position,
                 renderer,
                 clipboard,
                 shell,
             )
-
-        //match event {
-        //    iced::Event::Mouse(mouse::Event::)
-        //    _ => event::Status::Ignored,
-        //}
     }
 
     fn mouse_interaction(
@@ -280,54 +235,3 @@ where
         mouse::Interaction::Idle
     }
 }
-
-// struct MouseArea<'a, Message, Renderer> {
-//     content: Element<'a, Message, Renderer>,
-// }
-//
-// enum Content<'a, Message, Renderer> {
-//     Oblivious(Element<'a, Message, Renderer>),
-//     Interested(Box<dyn Fn(MouseState) -> Element<'a, Message, Renderer>>),
-// }
-//
-// impl<'a, Message, Renderer> From<Element<'a, Message, Renderer>>
-//     for Content<'a, Message, Renderer>
-// {
-// }
-//
-// impl<'a, Message, Renderer> From<Box<dyn Fn(MouseState) -> Element<'a, Message, Renderer>>>
-//     for Content<'a, Message, Renderer>
-// {
-// }
-//
-// fn mouse_area<'a, Message, Renderer>(
-//     content: impl Into<Content<'a, Message, Renderer>>,
-// ) -> MouseArea<'a, Message, Renderer> {
-// }
-//
-//
-// struct Inspectable<T> {
-//     id: widget::Id,
-//     _type: PhantomData<T>,
-// }
-//
-// type MouseAreaId = Inspectable<MouseState>;
-//
-// struct Inspect<'a, Message, Renderer, T> {
-//     target: Inspectable<T>,
-//     view: Box<dyn Fn(T) -> Element<'a, Message, Renderer>>,
-// }
-//
-// fn x() {
-//     let item_mouse_area = MouseAreaId::new();
-//     row![
-//         mouse_area(button("hello")).id(item_mouse_area),
-//         inspect(item_mouse_area, |mouse_state| {
-//             if mouse_state.is_hovered() {
-//                 "world"
-//             } else {
-//                 ""
-//             }
-//         }),
-//     ]
-// }
