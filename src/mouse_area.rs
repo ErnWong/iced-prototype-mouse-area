@@ -157,11 +157,16 @@ where
 
     fn operate(
         &self,
-        _state: &mut Tree,
-        _layout: iced_native::Layout<'_>,
-        _operation: &mut dyn iced_native::widget::Operation<Message>,
+        tree: &mut Tree,
+        layout: iced_native::Layout<'_>,
+        operation: &mut dyn iced_native::widget::Operation<Message>,
     ) {
-        todo!() // Should cache resolved content element and forward widget operation
+        // TODO: Test this
+        self.content
+            .borrow_mut()
+            .resolve(&self.view)
+            .as_widget()
+            .operate(&mut tree.children[0], layout, operation)
     }
 
     // TODO:
