@@ -92,52 +92,60 @@ impl Sandbox for MyApp {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        column![
-            text("Iced MouseArea Prototype")
-                .size(40)
-                .style(color!(0x888888)),
-            mouse_area(|mouse_state| button(if mouse_state.hovered {
-                "hovered"
-            } else {
-                "not hovered"
-            })
-            .on_press(())),
-            row![
-                "Spoilers: ",
-                mouse_area(|mouse_state| {
-                    container("Pineapple pizza is pretty good").style(theme::Container::Custom(
-                        Box::new(if mouse_state.hovered {
-                            SpoilersStyle::Shown
-                        } else {
-                            SpoilersStyle::Hidden
-                        }),
-                    ))
-                })
-            ],
-            container(
-                column![
-                    text("Todo List").size(30).style(color!(0x777777)),
-                    column![
-                        todo_item("Do programming"),
-                        todo_item("Do more programming")
-                    ]
-                    .spacing(10),
-                ]
-                .align_items(Alignment::Center)
-                .spacing(20)
-            )
-            .width(300.into())
-            .center_x(),
-            mouse_area(|mouse_state| {
-                image(image::Handle::from_memory(if mouse_state.hovered {
-                    CAT_OPEN
+        container(
+            column![
+                text("Iced MouseArea Prototype")
+                    .size(40)
+                    .style(color!(0x888888)),
+                mouse_area(|mouse_state| button(if mouse_state.hovered {
+                    "hovered"
                 } else {
-                    CAT_CLOSED
-                }))
-            }),
-        ]
+                    "not hovered"
+                })
+                .on_press(())),
+                row![
+                    "Spoilers: ",
+                    mouse_area(|mouse_state| {
+                        container("Pineapple pizza is pretty good").style(theme::Container::Custom(
+                            Box::new(if mouse_state.hovered {
+                                SpoilersStyle::Shown
+                            } else {
+                                SpoilersStyle::Hidden
+                            }),
+                        ))
+                    })
+                ],
+                container(
+                    column![
+                        text("Todo List").size(30).style(color!(0x777777)),
+                        column![
+                            todo_item("Do programming"),
+                            todo_item("Do more programming")
+                        ]
+                        .spacing(10),
+                    ]
+                    .align_items(Alignment::Center)
+                    .spacing(20)
+                )
+                .width(300.into())
+                .center_x(),
+                mouse_area(|mouse_state| {
+                    image(image::Handle::from_memory(if mouse_state.hovered {
+                        CAT_OPEN
+                    } else {
+                        CAT_CLOSED
+                    }))
+                }),
+            ]
+            .width(400.into())
+            //.align_items(Alignment::Center)
+            .spacing(30),
+        )
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x()
+        .center_y()
         .padding([50, 100])
-        .spacing(30)
         .into()
     }
 }
