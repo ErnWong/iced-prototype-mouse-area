@@ -235,17 +235,22 @@ where
 
     fn mouse_interaction(
         &self,
-        state: &Tree,
+        tree: &Tree,
         layout: iced_native::Layout<'_>,
         cursor_position: iced::Point,
         viewport: &iced::Rectangle,
         renderer: &Renderer,
     ) -> mouse::Interaction {
-        // TODO: Seems broken in our todo list item demo
         self.content
             .borrow_mut()
             .resolve(&self.view)
             .as_widget()
-            .mouse_interaction(state, layout, cursor_position, viewport, renderer)
+            .mouse_interaction(
+                &tree.children[0],
+                layout,
+                cursor_position,
+                viewport,
+                renderer,
+            )
     }
 }
