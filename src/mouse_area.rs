@@ -225,13 +225,17 @@ where
 
     fn mouse_interaction(
         &self,
-        _state: &Tree,
-        _layout: iced_native::Layout<'_>,
-        _cursor_position: iced::Point,
-        _viewport: &iced::Rectangle,
-        _renderer: &Renderer,
+        state: &Tree,
+        layout: iced_native::Layout<'_>,
+        cursor_position: iced::Point,
+        viewport: &iced::Rectangle,
+        renderer: &Renderer,
     ) -> mouse::Interaction {
-        // TODO: should cache resolved content element and forward event
-        mouse::Interaction::Idle
+        // TODO: Seems broken in our todo list item demo
+        self.content
+            .borrow_mut()
+            .resolve(&self.view)
+            .as_widget()
+            .mouse_interaction(state, layout, cursor_position, viewport, renderer)
     }
 }
