@@ -164,13 +164,18 @@ where
         todo!() // Should cache resolved content element and forward widget operation
     }
 
-    //fn overlay<'a>(
-    //        &'a mut self,
-    //        _state: &'a mut Tree,
-    //        _layout: iced_native::Layout<'_>,
-    //        _renderer: &Renderer,
-    //    ) -> Option<iced_native::overlay::Element<'a, Message, Renderer>> {
-    //
+    // TODO:
+    //fn overlay<'b>(
+    //    &'b mut self,
+    //    tree: &'b mut Tree,
+    //    layout: iced_native::Layout<'_>,
+    //    renderer: &Renderer,
+    //) -> Option<iced_native::overlay::Element<'b, Message, Renderer>> {
+    //    self.content
+    //        .borrow_mut()
+    //        .resolve(&self.view)
+    //        .as_widget_mut()
+    //        .overlay(&mut tree.children[0], layout, renderer)
     //}
 
     fn children(&self) -> Vec<Tree> {
