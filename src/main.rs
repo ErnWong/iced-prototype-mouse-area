@@ -49,24 +49,15 @@ impl container::StyleSheet for SpoilersStyle {
 
 fn todo_item<'a>(item_text: &'static str) -> Element<'a, (), iced::Renderer> {
     mouse_area(move |mouse_state| {
-        container(
-            row![
-                item_text,
-                horizontal_space(Length::Fill),
-                button(text("Done").style(if mouse_state.hovered {
-                    theme::Text::Default
-                } else {
-                    theme::Text::Color(Color::TRANSPARENT)
-                }))
-                .style(if mouse_state.hovered {
-                    theme::Button::Primary
-                } else {
-                    theme::Button::Text
-                })
-                .on_press(())
-            ]
-            .align_items(Alignment::Center),
-        )
+        let item_row = row![item_text, horizontal_space(Length::Fill)]
+            .align_items(Alignment::Center)
+            .height(40.into());
+
+        container(if mouse_state.hovered {
+            item_row.push(button("Done").on_press(()))
+        } else {
+            item_row
+        })
         .padding(10)
         .width(Length::Fill)
         .style(theme::Container::Box)
