@@ -106,13 +106,15 @@ impl Sandbox for MyApp {
             .into()),
             row![
                 "Spoilers: ",
-                mouse_area(|mouse_state| container("Pineapple pizza is pretty good")
-                    .style(theme::Container::Custom(Box::new(if mouse_state.hovered {
-                        SpoilersStyle::Shown
-                    } else {
-                        SpoilersStyle::Hidden
-                    })))
-                    .into())
+                mouse_area(|mouse_state| {
+                    container("Pineapple pizza is pretty good")
+                        .style(theme::Container::Custom(Box::new(if mouse_state.hovered {
+                            SpoilersStyle::Shown
+                        } else {
+                            SpoilersStyle::Hidden
+                        })))
+                        .into()
+                })
             ],
             container(
                 column![
@@ -128,14 +130,14 @@ impl Sandbox for MyApp {
             )
             .width(300.into())
             .center_x(),
-            mouse_area(
-                |mouse_state| image(image::Handle::from_memory(if mouse_state.hovered {
+            mouse_area(|mouse_state| {
+                image(image::Handle::from_memory(if mouse_state.hovered {
                     CAT_OPEN
                 } else {
                     CAT_CLOSED
                 }))
                 .into()
-            ),
+            }),
         ]
         .padding([50, 100])
         .spacing(30)
