@@ -20,9 +20,12 @@ pub struct MouseArea<'a, Message, Renderer> {
 }
 
 impl<'a, Message, Renderer> MouseArea<'a, Message, Renderer> {
-    pub fn new(view: impl Fn(MouseState) -> Element<'a, Message, Renderer> + 'a) -> Self {
+    pub fn new<T>(view: impl Fn(MouseState) -> T + 'a) -> Self
+    where
+        T: Into<Element<'a, Message, Renderer>>,
+    {
         Self {
-            view: Box::new(view),
+            view: Box::new(move |mouse_state| view(mouse_state).into()),
             content: RefCell::new(Content {
                 mouse_state: Default::default(),
                 element: None,

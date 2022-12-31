@@ -11,8 +11,8 @@ use mouse_area::{MouseArea, MouseState};
 const CAT_OPEN: &[u8] = include_bytes!("./assets/open.jpeg");
 const CAT_CLOSED: &[u8] = include_bytes!("./assets/closed.jpeg");
 
-fn mouse_area<'a, Message>(
-    view: impl Fn(MouseState) -> Element<'a, Message> + 'a,
+fn mouse_area<'a, Message, T: Into<Element<'a, Message>>>(
+    view: impl Fn(MouseState) -> T + 'a,
 ) -> MouseArea<'a, Message, iced::Renderer> {
     MouseArea::new(view)
 }
@@ -70,7 +70,6 @@ fn todo_item<'a>(item_text: &'static str) -> Element<'a, (), iced::Renderer> {
         .padding(10)
         .width(Length::Fill)
         .style(theme::Container::Box)
-        .into()
     })
     .into()
 }
@@ -102,18 +101,17 @@ impl Sandbox for MyApp {
             } else {
                 "not hovered"
             })
-            .on_press(())
-            .into()),
+            .on_press(())),
             row![
                 "Spoilers: ",
                 mouse_area(|mouse_state| {
-                    container("Pineapple pizza is pretty good")
-                        .style(theme::Container::Custom(Box::new(if mouse_state.hovered {
+                    container("Pineapple pizza is pretty good").style(theme::Container::Custom(
+                        Box::new(if mouse_state.hovered {
                             SpoilersStyle::Shown
                         } else {
                             SpoilersStyle::Hidden
-                        })))
-                        .into()
+                        }),
+                    ))
                 })
             ],
             container(
@@ -136,7 +134,6 @@ impl Sandbox for MyApp {
                 } else {
                     CAT_CLOSED
                 }))
-                .into()
             }),
         ]
         .padding([50, 100])
