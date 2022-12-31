@@ -50,17 +50,23 @@ struct Content<'a, Message, Renderer> {
     element: Option<Element<'a, Message, Renderer>>,
 }
 
+enum UpdateStatus {
+    Unchanged,
+    Updated,
+}
+
 impl<'a, Message, Renderer> Content<'a, Message, Renderer> {
     fn update(
         &mut self,
         mouse_state: MouseState,
         view: impl Fn(MouseState) -> Element<'a, Message, Renderer>,
-    ) {
+    ) -> UpdateStatus {
         if mouse_state == self.mouse_state && self.element.is_some() {
-            return;
+            return UpdateStatus::Unchanged;
         }
         self.mouse_state = mouse_state;
         self.element = Some(view(mouse_state));
+        UpdateStatus::Updated
     }
 
     fn resolve(
@@ -120,8 +126,6 @@ where
     }
 
     fn width(&self) -> Length {
-        // TODO: This may become out of date when the mouse state changes.
-        // How do we let Iced know that the layout is invalidated?
         self.content
             .borrow_mut()
             .resolve(&self.view)
@@ -130,8 +134,6 @@ where
     }
 
     fn height(&self) -> Length {
-        // TODO: This may become out of date when the mouse state changes.
-        // How do we let Iced know that the layout is invalidated?
         self.content
             .borrow_mut()
             .resolve(&self.view)
@@ -207,9 +209,14 @@ where
             }
             _ => {}
         }
-        self.content
+
+        if let UpdateStatus::Updated = self
+            .content
             .borrow_mut()
-            .update(state.mouse_state, &self.view);
+            .update(state.mouse_state, &self.view)
+        {
+            shell.invalidate_widgets();
+        }
 
         self.content
             .borrow_mut()
